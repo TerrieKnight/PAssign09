@@ -1,8 +1,14 @@
+package EPA5;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.Arrays;
+import java.util.List;
+
+import EPA5.FixedLengthStringIO;
 
 /**
 * File: PAssign09.java  
@@ -14,26 +20,37 @@ import java.io.IOException;
 */
 
 public class PAssign09 {
-	private RandomAccessFile emd;
+	private static RandomAccessFile emd;
+	private final static int NAME_SIZE = 32;
+	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		try ( // Create an input stream for file pricelist.dat
-				DataInputStream input = new DataInputStream(new FileInputStream("src/employeeData.dat"));
-				) {
-
-			// Read student prices from the file
-			while (true) {
-				System.out.println(input.readUTF() + " " + input.readDouble() + " " + input.readDouble());
-				System.out.println(input.readUTF() + " " + input.readDouble() + " " + input.readDouble());
-				System.out.println(input.readUTF() + " " + input.readDouble() + " " + input.readDouble());
-			}	
-		} catch (EOFException ex) {
-			System.out.println("Reached end of file");
+		try {
+			emd = new RandomAccessFile("src/employeeData.dat", "rw");
+			
+			// read employee info 
+			for(int i = 0; i <= 9; i++) {
+				System.out.print(readAddress(i));
+			}
 		}
+		catch(IOException ex) {
+			System.out.print("Cannot open address book, Exiting\nError: " + ex);
+			System.exit(1);
+		}
+		
+	}
+	
+	public static List<Object> readAddress(long position) throws IOException {
+		emd.seek(position);
+		String name = FixedLengthStringIO.readFixedLengthString(NAME_SIZE, emd);
+		double salary = emd.readDouble();
+		double yos = emd.readDouble();
+		return Arrays.asList(name, salary, yos);
 	}
 }
 
+
 class Employee {
-	private final static int Name = 10;
+	private String Name;
 	private double Salary; 
 	private double yos; 
 	
@@ -41,27 +58,29 @@ class Employee {
 		
 	}
 
+	public String getName() {
+		return Name;
+	}
+	public void setName(String name) {
+		Name = name;
+	}
 	public double getSalary() {
 		return Salary;
 	}
-
 	public void setSalary(double salary) {
 		Salary = salary;
 	}
-
 	public double getYos() {
 		return yos;
 	}
-
 	public void setYos(double yos) {
 		this.yos = yos;
 	}
 
-	public static int getName() {
-		return Name;
-	}
 	
-	public Employee() {
-		
+	public Employee(String nName, double nSalary, double nYos) {
+		setName(nName);
+		setSalary(nSalary);
+		setYos(nYos);
 	}
 }
